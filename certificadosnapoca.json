@@ -2,7 +2,12 @@
   { "codigo": "1500841596", "nombres": "María Jova","apellidos": "Shiguango Tanguila", "cargo": "Presidenta / Winaru", "vigente_hasta": "09 de diciembre de 2026","vigente": "S"},
   { "codigo": "1500592140", "nombres": "Marco Vladimir","apellidos": "Grefa Calapucha", "cargo": "Vicepresidente / Yanapaj Winaru", "vigente_hasta": "09 de diciembre de 2026","vigente": "S"},
   { "codigo": "1500635915", "nombres": "Mario Jesus","apellidos": "Shiguango Tanguila", "cargo": "Dirigente de Comunicación / Willaymanda Yanapaj Curaga", "vigente_hasta": "09 de diciembre de 2026","vigente": "S"},
-  { "codigo": "1500244130", "nombres": "Guido Faustino","apellidos": "Grefa Chongo", "cargo": "Dirigente de Territorios / Causaj Shacha Pushaj Curaga", "vigente_hasta": "09 de diciembre de 2026","vigente": "S"}
-
+  { "codigo": "1500244130", "nombres": "Guido Faustino","apellidos": "Grefa Chongo", "cargo": "Dirigente de Territorios / Causaj Shacha Pushaj Curaga", "vigente_hasta": "09 de diciembre de 2026","vigente": "S"},
+  { "codigo": "1500746126", "nombres": "Klever Wilfrido","apellidos": "Vargas Andi", "cargo": "Dirigente de Educación, Ciencia, Tecnología e Innovación / Yachaycunamanda Pushaj Curaga", "vigente_hasta": "09 de diciembre de 2026","vigente": "S"},
+  { "codigo": "1500546096", "nombres": "Valerio Juan","apellidos": "Licuy Tanguila", "cargo": "Dirigente de Relaciones Internacionales y Organización / Cuntin Yanapaj Curaga", "vigente_hasta": "09 de diciembre de 2026","vigente": "S"},
+  { "codigo": "1500439342", "nombres": "Cersar Alberto","apellidos": "Aguinda Alvarado", "cargo": "Dirigente de Juventudes / Maltaguna Yanapaj Curaga", "vigente_hasta": "09 de diciembre de 2026","vigente": "S"},
+  { "codigo": "1500753460", "nombres": "Edith Doris","apellidos": "Alvarado Tapuy", "cargo": "Secretaria", "vigente_hasta": "09 de diciembre de 2026","vigente": "S"},
+  { "codigo": "1500900319", "nombres": "Henry Gonzalo","apellidos": "Alvarado Jaya", "cargo": "Técnico de Apoyo Tecnológico", "vigente_hasta": "09 de diciembre de 2026","vigente": "S"}
 ]
+
 
