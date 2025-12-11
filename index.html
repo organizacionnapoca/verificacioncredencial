@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Verificación de Credencial — NAPOCA</title>
+  <style>
+    :root{
+      --primary:#1B5E20;
+      --primary-light:#2E7D32;
+      --secondary:#4CAF50;
+      --danger:#d32f2f;
+      --white:#ffffff;
+      --shadow:0 8px 24px rgba(0,0,0,0.08);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Segoe UI',Tahoma, Geneva, Verdana, sans-serif;
+      background:linear-gradient(135deg,#E8F5E9 0%,#C8E6C9 100%);
+      min-height:100vh;padding:24px;display:flex;align-items:center;justify-content:center;
+    }
+
+    /* Main layout */
+    .card{
+      width:100%;
+      max-width:1200px;
+      display:flex;
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      background:var(--white);
+    }
+
+    /* Left - green verification panel */
+    .panel-left{
+      flex:1;
+      padding:34px;
+      background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      justify-content:center;
+    }
+    .logo-row{display:flex;gap:14px;align-items:center}
+    .logo-img{width:84px;height:84px;border-radius:10px;object-fit:cover;border:3px solid rgba(255,255,255,0.15);background:#fff}
+    .org-name{font-weight:900;font-size:20px}
+    .org-sub{font-size:13px;opacity:0.95;margin-top:6px}
+
+    h1{font-size:28px;margin-top:6px;font-weight:900}
+    .status-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.12);padding:10px 14px;border-radius:999px;font-weight:800}
+    .small-instr{opacity:0.95;font-weight:600;margin-top:6px;font-size:14px}
+
+    .verified-box{
+      margin-top:8px;
+      background:rgba(255,255,255,0.12);
+      padding:16px;border-radius:12px;display:flex;flex-direction:column;gap:12px;
+      width:fit-content;
+    }
+
+    .participant-name{
+      font-size:22px;font-weight:900;color:#fff;
+      background:transparent;padding:6px 0;
+    }
+
+    .info-row{display:flex;gap:12px;align-items:center}
+    .info-label{min-width:110px;font-weight:800;color:rgba(255,255,255,0.95)}
+    .info-value{font-weight:700;color:rgba(255,255,255,0.95)}
+
+    .status-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;font-weight:900;color:#fff}
+    .status-vigente{background:var(--secondary)}
+    .status-no{background:var(--danger)}
+    .status-unknown{background:#9E9E9E}
+
+    .vigente-fecha{font-size:13px;color:rgba(255,255,255,0.95);font-weight:700;margin-top:6px}
+
+    /* Right - white photo panel */
+    .panel-right{
+      width:460px;
+      max-width:46%;
+      min-width:320px;
+      background:var(--white);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:36px;
+    }
+
+    .photo-frame{
+      width:320px;
+      height:420px;
+      border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.06);
+      border:1px solid #eee;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg,#fafafa,#fff);
+      overflow:hidden;
+    }
+
+    .photo-frame img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      background:#fff; /* opcional */
+    }
+
+    .photo-placeholder{
+      color:#bdbdbd;font-weight:700;font-size:16px;
+    }
+
+    /* Responsive */
+    @media (max-width:900px){
+      .card{flex-direction:column}
+      .panel-right{width:100%;max-width:100%;min-width:0;padding:24px}
+      .photo-frame{width:260px;height:340px}
+      .panel-left{padding:22px}
+    }
+  </style>
+</head>
+<body>
+  <div class="card" role="main" aria-live="polite">
+    <!-- LEFT: verification (green) -->
+    <div class="panel-left">
+      <div class="logo-row">
+        <img src="logo.png" alt="Logo NAPOCA" class="logo-img" onerror="this.style.display='none'">
+        <div>
+          <div class="org-name">NAPOCA</div>
+          <div class="org-sub">Nacionalidades y Pueblos Originarios Campesinos Amazónicos de Napo</div>
+        </div>
+      </div>
+
+      <h1>Verificación de Credencial</h1>
+
+      <div id="contenido">
+        <div class="status-badge" id="statusDefault">
+          <div style="width:18px;height:18px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;"></div>
+          <div>Consultando registro...</div>
+        </div>
+
+        <div class="small-instr">Agrega <code>?codigo=...</code> en la URL (ejemplo: <code>?codigo=1500635915</code>).</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: only photo (white) -->
+    <div class="panel-right">
+      <div class="photo-frame" id="photoFrame" aria-hidden="false">
+        <div class="photo-placeholder">Foto no disponible</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* Helper */
+    function escapeHtml(s){ if (s===null||s===undefined) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+    function isAbsoluteUrl(s){ return /^https?:\/\//i.test(String(s||'')); }
+    function normalizeVigente(v){
+      if (v===undefined||v===null) return null;
+      if (typeof v === 'boolean') return v;
+      const s = String(v).trim().toLowerCase();
+      if (['s','si','sí','true','1','vigente','activo','activa'].includes(s)) return true;
+      if (['n','no','false','0','no vigente','inactivo','inactiva'].includes(s)) return false;
+      return null;
+    }
+    function parseDateToISO(s){
+      if(!s) return null;
+      const m1 = s.match(/^\s*(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})\s*$/);
+      if(m1) return `${m1[1]}-${String(m1[2]).padStart(2,'0')}-${String(m1[3]).padStart(2,'0')}`;
+      const months = { enero:1,febrero:2,marzo:3,abril:4,mayo:5,junio:6,julio:7,agosto:8,septiembre:9,setiembre:9,octubre:10,noviembre:11,diciembre:12 };
+      const m2 = s.toLowerCase().match(/(\d{1,2})\s+de\s+([a-záéíóúñ]+)\s+de\s+(\d{4})/i);
+      if(m2 && months[m2[2]]) return `${m2[3]}-${String(months[m2[2]]).padStart(2,'0')}-${String(m2[1]).padStart(2,'0')}`;
+      return null;
+    }
+
+    async function verificar(){
+      const params = new URLSearchParams(window.location.search);
+      const codigo = params.get('codigo');
+      const contenido = document.getElementById('contenido');
+      const photoFrame = document.getElementById('photoFrame');
+      const statusDefault = document.getElementById('statusDefault');
+
+      // initial placeholders
+      photoFrame.innerHTML = '<div class="photo-placeholder">Foto no disponible</div>';
+
+      if(!codigo){
+        statusDefault.innerHTML = '<div style="font-weight:900;">⚠️ Código no proporcionado</div>';
+        return;
+      }
+
+      statusDefault.innerHTML = `<div style="font-weight:900;">🔎 Verificando <strong>${escapeHtml(codigo)}</strong>...</div>`;
+
+      try {
+        const resp = await fetch('certificadosnapoca.json', {cache:'no-store'});
+        if(!resp.ok) throw new Error('No se pudo cargar certificadosnapoca.json (HTTP '+resp.status+')');
+        const text = await resp.text();
+        let data;
+        try { data = JSON.parse(text); } catch(e){ throw new Error('El JSON tiene errores: ' + e.message); }
+
+        const rec = Array.isArray(data) ? data.find(r => String(r.codigo) === String(codigo)) : (data && String(data.codigo) === String(codigo) ? data : null);
+
+        if(!rec){
+          statusDefault.innerHTML = `<div style="font-weight:900; color:#ffdede;">❌ No encontrado</div>`;
+          contenido.innerHTML = `<div class="status-badge" style="background:rgba(255,255,255,0.06)">❌ Registro no encontrado</div><div class="small-instr" style="color:rgba(255,255,255,0.95)">Código: <strong>${escapeHtml(codigo)}</strong></div>`;
+          return;
+        }
+
+        // Extract fields
+        const nombres = (rec.nombres || rec.nombre || '') + (rec.apellidos ? ' ' + rec.apellidos : '');
+        const cedula = rec.cedula || rec.ci || rec['cédula'] || rec.identificacion || '';
+        const cargo = rec.cargo || rec.puesto || '';
+        const vigente_raw = rec.vigente || rec.vigente_hasta || rec.vigenteHasta || rec.vigencia || '';
+        const vigenteHasta = rec.vigente_hasta || rec.vigenteHasta || rec.vigencia || '';
+        const isVigente = normalizeVigente(rec.vigente);
+
+        // Build left panel content (ONLY verification data)
+        let estadoHtml = '';
+        if(isVigente === true){
+          estadoHtml = `<div class="status-pill status-vigente">✅ VIGENTE</div>`;
+        } else if(isVigente === false){
+          estadoHtml = `<div class="status-pill status-no">⛔ NO VIGENTE</div>`;
+        } else if(vigenteHasta){
+          const iso = parseDateToISO(vigenteHasta);
+          if(iso){
+            const now = new Date(); const until = new Date(iso);
+            estadoHtml = (until >= new Date(now.getFullYear(), now.getMonth(), now.getDate()))
+              ? `<div class="status-pill status-vigente">✅ VIGENTE</div>`
+              : `<div class="status-pill status-no">⛔ NO VIGENTE</div>`;
+          } else {
+            estadoHtml = `<div class="status-pill status-unknown">❔ ${escapeHtml(String(rec.vigente || 'desconocido'))}</div>`;
+          }
+        } else {
+          estadoHtml = `<div class="status-pill status-unknown">❔ Estado desconocido</div>`;
+        }
+
+        contenido.innerHTML = `
+          <div class="status-badge">✅ Registro verificado</div>
+          <div class="verified-box" role="region" aria-label="Datos verificados">
+            <div class="participant-name">${escapeHtml(nombres || '—')}</div>
+            <div class="info-row"><div class="info-label">Cédula:</div><div class="info-value">${escapeHtml(codigo || '—')}</div></div>
+            <div class="info-row"><div class="info-label">Cargo:</div><div class="info-value">${escapeHtml(cargo || '—')}</div></div>
+            <div class="info-row"><div class="info-label">Estado:</div><div class="info-value">${estadoHtml}</div></div>
+            ${vigenteHasta ? `<div class="vigente-fecha">Vigente hasta: ${escapeHtml(vigenteHasta)}</div>` : ''}
+          </div>
+        `;
+
+        // Photo: only image in right panel
+        // compute photo path: prefer foto/fotografia/imagen field, else codigo.jpg
+        // --- FOTO ---
+        let fotoField = rec.foto || rec.fotografia || rec.imagen || '';
+        let baseName = fotoField ? fotoField.replace(/\.[^/.]+$/, "") : String(rec.codigo);
+
+        // extensiones permitidas
+        const exts = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
+
+        // intentos de rutas
+        const paths = fotoField
+          ? exts.map(ext => "imagenes/" + baseName + "." + ext)
+          : exts.map(ext => "imagenes/" + String(rec.codigo) + "." + ext);
+
+        // función para probar secuencialmente
+        async function tryLoad(paths) {
+          for (const p of paths) {
+            try {
+              const r = await fetch(p, { method: "HEAD" });
+              if (r.ok) return p;     // si existe, devuelvo ese archivo
+            } catch (_) {}
+          }
+          return null;
+        }
+
+        let photoSrc = await tryLoad(paths);
+
+        // Mostrar resultado
+        if (photoSrc) {
+          const img = document.createElement("img");
+          img.src = photoSrc;
+          img.alt = "Foto del usuario";
+          img.onload = () => {
+            photoFrame.innerHTML = "";
+            photoFrame.appendChild(img);
+          };
+          img.onerror = () => {
+            photoFrame.innerHTML = '<div class="photo-placeholder">Foto no disponible</div>';
+          };
+        } else {
+          photoFrame.innerHTML = '<div class="photo-placeholder">Foto no disponible</div>';
+        }
+
+
+        // create img element
+        const img = document.createElement('img');
+        img.alt = `Foto ${escapeHtml(nombres||rec.codigo)}`;
+        img.loading = 'lazy';
+        img.src = photoSrc;
+        img.onerror = function(){
+          // show placeholder text instead
+          photoFrame.innerHTML = '<div class="photo-placeholder">Foto no disponible</div>';
+        };
+        img.onload = function(){
+          // replace content of photoFrame with image only
+          photoFrame.innerHTML = '';
+          photoFrame.appendChild(img);
+        };
+
+        // Update statusDefault to show code
+        statusDefault.innerHTML = `<div style="font-weight:900;">✅ Registro verificado</div><div style="font-size:13px;margin-top:6px">Código: <strong>${escapeHtml(rec.codigo)}</strong></div>`;
+
+      } catch (err){
+        console.error(err);
+        statusDefault.innerHTML = `<div style="font-weight:900;color:#ffdede">⚠️ Error</div>`;
+        contenido.innerHTML = `<div style="margin-top:8px;color:rgba(255,255,255,0.95);font-weight:800">Error al cargar datos</div>`;
+        photoFrame.innerHTML = '<div class="photo-placeholder">Foto no disponible</div>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', verificar);
+  </script>
+
+  <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+</body>
+</html>
